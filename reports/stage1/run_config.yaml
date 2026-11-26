@@ -1,0 +1,57 @@
+profile_name: lite
+models:
+  tiers:
+    S: Qwen/Qwen2.5-1.5B-Instruct
+    M: Qwen/Qwen2.5-3B-Instruct
+    L: Qwen/Qwen2.5-7B-Instruct
+  helper: S
+  dtype: float16
+  tensor_parallel:
+    S: 1
+    M: 1
+    L: 2
+  max_model_len: 4096
+  retriever: intfloat/e5-base-v2
+retrieval:
+  primary: bm25
+  topk: 10
+  K_choices:
+  - 3
+  - 5
+splits:
+  per_source:
+    train_pool: 2500
+    val: 250
+    live_ft: 250
+  test_per_dataset: 500
+project: joint-controller-rag
+paths:
+  data: data
+  raw: data/raw
+  splits: data/splits
+  questions: data/questions.parquet
+  reports: reports
+  third_party: third_party
+seeds:
+  data: 42
+  train:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+flashrag:
+  hf_repo: RUC-NLPIR/FlashRAG_datasets
+  test_split:
+    nq: test
+    hotpotqa: dev
+    triviaqa: test
+    popqa: test
+    2wikimultihopqa: dev
+    musique: dev
+    bamboogle: test
+  train_sources:
+  - nq
+  - hotpotqa
+tokenizer: Qwen/Qwen2.5-7B-Instruct
+_git_hash: 2a9c8f45b06ac8d1369b55b3c883b7902f2e31cc
