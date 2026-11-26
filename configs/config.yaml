@@ -14,6 +14,16 @@ paths:
   questions: ${paths.data}/questions.parquet
   reports: reports
   third_party: third_party
+  # Search-R1's corpus and E5 index (scripts/download.py of Search-R1). Put on an SSD:
+  # exact search streams the whole 60 GB index once per batch of queries.
+  wiki18: ${paths.data}/wiki18
+  index_parts: [part_aa, part_ab]
+  corpus_gz: ${paths.wiki18}/wiki-18.jsonl.gz
+  corpus_jsonl: ${paths.wiki18}/wiki-18.jsonl
+  corpus_offsets: ${paths.wiki18}/wiki-18.offsets.npy
+  retrieval_memo: ${paths.data}/retrieval_memo.sqlite
+  retrieval_cache: ${paths.data}/retrieval_cache.parquet
+  passages: ${paths.data}/passages.parquet
 
 seeds:
   data: 42                    # every data sample

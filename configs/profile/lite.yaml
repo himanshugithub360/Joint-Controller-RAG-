@@ -16,10 +16,10 @@ models:
   retriever: intfloat/e5-base-v2
 
 retrieval:
-  # The full 21M-passage Wikipedia E5 index (~65 GB) does not fit Kaggle or 64 GB RAM.
-  # Lite uses BM25 over the full corpus (CPU, disk-based) as the primary retriever and
-  # an E5 index over a passage subset; decided in Stage 2.
-  primary: bm25
+  # Same retriever and index as Search-R1 (E5-base-v2, flat, 21M passages). The 60 GB
+  # index does not fit in RAM, so it is searched exactly on CPU by streaming it from the
+  # SSD in chunks (src/budgetrag/retrieval/flat_index.py); one pass serves a whole batch.
+  primary: e5
   topk: 10
   K_choices: [3, 5]
 

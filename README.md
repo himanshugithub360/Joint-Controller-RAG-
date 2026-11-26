@@ -29,7 +29,7 @@ original plan for a later run on bigger GPUs.
 | Training pool | 5,000 (2,500 NQ + 2,500 HotpotQA) | 20,000 |
 | Validation / live fine-tuning | 500 / 500 | 1,000 / 2,000 |
 | Test | 500 per dataset (Bamboogle 125) ≈ 3,125 | all test splits ≈ 51,700 |
-| Primary retriever | BM25 (E5 on a passage subset, decided in Stage 2) | E5 + FAISS over 21M passages |
+| Primary retriever | E5 over 21M passages, exact search on CPU (Search-R1's index) | E5 + FAISS over 21M passages |
 
 Lite results are not directly comparable with Search-R1's published tables; the full
 profile is kept so they can be.
@@ -70,7 +70,7 @@ third_party/          reused repos at pinned commits (fetched, not committed; se
 |---|---|---|
 | 0 | Environments, pinned third-party code, smoke tests | Done: local and Kaggle pass, all three tiers answer (`reports/STAGE_0_REPORT.md`) |
 | 1 | Datasets and frozen splits | Done, lite profile: 9,125 questions (`reports/STAGE_1_REPORT.md`) |
-| 2 | Retrieval (BM25, E5) and retrieval cache | Next |
+| 2 | Retrieval (BM25, E5) and retrieval cache | E5 done: top-10 for all 9,125 questions (`reports/STAGE_2_REPORT.md`); BM25 pending (only for E6) |
 | 3 | Model serving on Kaggle, prompts, EM/F1 | |
 | 4 | Pilot and tier-gap gate | |
 | 5 | Cost model and budgets | |
