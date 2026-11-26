@@ -1,5 +1,8 @@
 # Kaggle GPU notebooks (Accelerator: "GPU T4 x2"; the P100 option is too old for vLLM).
-# Installed on top of Kaggle's image with:  pip install -q -r envs/kaggle-requirements.txt
+# Kaggle's image is Python 3.13, but this stack needs Python <= 3.12 (no xformers 3.13 wheels),
+# so install it into a separate environment (as kaggle/stage0_smoke.ipynb does):
+#   pip install -q uv && uv venv --python 3.12 /tmp/vllm-env
+#   uv pip install --python /tmp/vllm-env/bin/python -r envs/kaggle-requirements.txt
 # vLLM 0.6.x still runs on T4 (compute capability 7.5) in float16; later releases dropped
 # the engine that supports it. torch comes in as vLLM's pinned dependency (2.5.1).
 vllm==0.6.6.post1
