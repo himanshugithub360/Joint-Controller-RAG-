@@ -68,7 +68,7 @@ third_party/          reused repos at pinned commits (fetched, not committed; se
 
 | Stage | What | Status |
 |---|---|---|
-| 0 | Environments, pinned third-party code, smoke tests | Local passes (`reports/stage0_env_local.md`); Kaggle notebook not yet run |
+| 0 | Environments, pinned third-party code, smoke tests | Done: local and Kaggle pass, all three tiers answer (`reports/STAGE_0_REPORT.md`) |
 | 1 | Datasets and frozen splits | Done, lite profile: 9,125 questions (`reports/STAGE_1_REPORT.md`) |
 | 2 | Retrieval (BM25, E5) and retrieval cache | Next |
 | 3 | Model serving on Kaggle, prompts, EM/F1 | |

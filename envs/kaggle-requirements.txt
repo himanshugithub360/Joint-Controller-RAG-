@@ -7,5 +7,6 @@
 # the engine that supports it. torch comes in as vLLM's pinned dependency (2.5.1).
 vllm==0.6.6.post1
 transformers==4.46.3
-pandas
-pyarrow
+# vLLM 0.6.6 pins numpy<2; pyarrow >= 18 needs numpy 2, so keep pyarrow at 17 (supports numpy 1.x).
+pandas==2.2.3
+pyarrow==17.0.0
