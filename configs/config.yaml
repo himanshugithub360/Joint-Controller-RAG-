@@ -1,0 +1,36 @@
+# Top-level config. Pick a scale profile with:  profile=lite  (default) or  profile=full
+# Load from Python with budgetrag.config.load_config(); every script saves the resolved
+# config next to its outputs.
+defaults:
+  - profile: lite
+  - _self_
+
+project: joint-controller-rag
+
+paths:
+  data: data                 # relative to the repo root unless absolute
+  raw: ${paths.data}/raw
+  splits: ${paths.data}/splits
+  questions: ${paths.data}/questions.parquet
+  reports: reports
+  third_party: third_party
+
+seeds:
+  data: 42                    # every data sample
+  train: [0, 1, 2, 3, 4]      # one training run per seed
+
+flashrag:
+  hf_repo: RUC-NLPIR/FlashRAG_datasets
+  # dataset -> split used for testing (same as Search-R1 / AutoSearch)
+  test_split:
+    nq: test
+    hotpotqa: dev
+    triviaqa: test
+    popqa: test
+    2wikimultihopqa: dev
+    musique: dev
+    bamboogle: test
+  # train sets the training pool, validation and live fine-tuning sets are drawn from
+  train_sources: [nq, hotpotqa]
+
+tokenizer: Qwen/Qwen2.5-7B-Instruct   # used only to count question tokens

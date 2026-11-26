@@ -1,0 +1,27 @@
+# @package _global_
+# "full" profile: the original plan (one node with 4-8x 80 GB GPUs). Kept so results can be
+# scaled up later, e.g. on an institute cluster or rented A100/H100s.
+profile_name: full
+
+models:
+  tiers:
+    S: Qwen/Qwen2.5-3B-Instruct
+    M: Qwen/Qwen2.5-7B-Instruct
+    L: Qwen/Qwen2.5-32B-Instruct
+  helper: S
+  dtype: bfloat16
+  tensor_parallel: {S: 1, M: 1, L: 2}
+  max_model_len: 8192
+  retriever: intfloat/e5-base-v2
+
+retrieval:
+  primary: e5
+  topk: 10
+  K_choices: [3, 5]
+
+splits:
+  per_source:
+    train_pool: 10000          # -> 20,000 questions
+    val: 500                   # -> 1,000
+    live_ft: 1000              # -> 2,000
+  test_per_dataset: null       # whole test splits (~51,700 questions)

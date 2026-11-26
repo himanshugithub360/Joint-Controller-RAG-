@@ -1,0 +1,24 @@
+# Large or generated data: rebuilt by the stage scripts
+data/*
+!data/splits/
+outputs/
+*.index
+*.parquet
+wandb/
+multirun/
+
+# Reused repositories are fetched by scripts/s00_fetch_third_party.py at pinned commits
+third_party/*
+!third_party/README.md
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+
+# Secrets
+.env
+kaggle.json
