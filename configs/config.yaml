@@ -61,3 +61,16 @@ llm:
     determinism_n: 200        # answer prompts generated twice per tier
     jobs: kaggle/inputs/stage3_jobs.jsonl.gz   # committed: Kaggle reads it from the repo
     outputs: ${paths.data}/stage3              # Kaggle output files go here (S.jsonl, ...)
+  # Stage 4: pilot and tier-gap gate. Three Kaggle rounds, with E5 retrieval of the new
+  # sub-queries on the workstation between them (scripts/s04_pilot.py).
+  stage4:
+    val_k: [3]                # validation: the fixed 3-step path 3-3-3 and its prefixes
+    pilot_split: train_pool   # cost pilot: the full Stage 6 tree on a sample of this split
+    pilot_per_source: 250     # -> 500 questions (250 NQ + 250 HotpotQA)
+    max_depth: 3
+    gate_min_gap: 3.0         # F1 points between neighbouring tiers, top-3 retrieval, validation
+    try_fallback: [S]         # also run models.fallback for these tiers (Stage 3 showed M - S = 2.2)
+    k_change_min: 0.01        # keep K = 5 unless it changes the answer on fewer than 1% of node pairs
+    jobs_dir: kaggle/inputs   # stage4_r{1,2,3}.jsonl.gz (committed; Kaggle reads them from the repo)
+    outputs: ${paths.data}/stage4   # unzip stage4_r<N>.zip into <outputs>/r<N>/
+    kaggle_quota_h: 30        # Kaggle GPU hours per week (session time, any number of GPUs)

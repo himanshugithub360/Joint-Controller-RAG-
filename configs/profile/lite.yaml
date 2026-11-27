@@ -10,6 +10,9 @@ models:
     M: Qwen/Qwen2.5-3B-Instruct
     L: Qwen/Qwen2.5-7B-Instruct
   helper: S                    # sub-queries and tentative answers
+  # Stage 4 gate fallbacks: a smaller S if M - S is too small, a larger L if L - M is.
+  fallback: {S: Qwen/Qwen2.5-0.5B-Instruct, L: Qwen/Qwen2.5-14B-Instruct}
+  fallback_label: {S: XS, L: XL}
   dtype: float16
   tensor_parallel: {S: 1, M: 1, L: 2}
   max_model_len: 4096
