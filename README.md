@@ -71,7 +71,7 @@ third_party/          reused repos at pinned commits (fetched, not committed; se
 | 0 | Environments, pinned third-party code, smoke tests | Done: local and Kaggle pass, all three tiers answer (`reports/STAGE_0_REPORT.md`) |
 | 1 | Datasets and frozen splits | Done, lite profile: 9,125 questions (`reports/STAGE_1_REPORT.md`) |
 | 2 | Retrieval (BM25, E5) and retrieval cache | E5 done: top-10 for all 9,125 questions (`reports/STAGE_2_REPORT.md`); BM25 pending (only for E6) |
-| 3 | Model serving on Kaggle, prompts, EM/F1 | Code and prompts ready, 29 new tests pass (58 in all); Kaggle run pending (`kaggle/stage3.ipynb`, then `scripts/s03_score.py`) |
+| 3 | Model serving on Kaggle, prompts, EM/F1 | Done: all three tiers answer the 500 validation questions; top-3 answer F1 1.5B 44.8 / 3B 47.0 / 7B 50.6; 99.5–100% deterministic (`reports/STAGE_3_REPORT.md`) |
 | 4 | Pilot and tier-gap gate | |
 | 5 | Cost model and budgets | |
 | 6 | Outcome cache | |

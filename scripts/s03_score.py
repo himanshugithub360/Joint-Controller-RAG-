@@ -147,15 +147,39 @@ def main(argv: list[str]) -> None:
             lines.append(f"| {t} | {pct(same_t)}% of {len(common)} | {pct(same_p)}% |")
     lines.append("")
 
-    # examples
-    some = p1[(p1.kind == "subquery")]
-    if not some.empty:
-        tier = some.tier.iloc[0]
-        ex = some[(some.tier == tier) & (some.dataset == "hotpotqa")].head(5)
-        lines += [f"## Example sub-queries (tier {tier}, HotpotQA)", ""]
-        for r in ex.itertuples():
-            lines.append(f"- {q.at[r.qid, 'question']} â†’ `{r.pred}`")
-        lines.append("")
+    # determinism failures, verbatim
+    for t in TIERS:
+        d = df[(df.tier == t) & (df.kind == "answer")]
+        a = d[d["pass"] == 1].set_index("job_id")
+        b = d[d["pass"] == 2].set_index("job_id")
+        for j in b.index.intersection(a.index):
+            if a.at[j, "text"] != b.at[j, "text"]:
+                lines.append(f"- Tier {t}, `{j}`: {a.at[j, 'text']!r} then {b.at[j, 'text']!r}.")
+    lines.append("")
+
+    # empty tentative answers: abstentions or broken output?
+    tent_empty = tent[tent.is_empty] if not tent.empty else tent
+    if not tent_empty.empty:
+        abstain = tent_empty.text.str.strip().str.fullmatch(r"<answer>\s*").mean()
+        lines += ["Empty tentative answers: " + ", ".join(f"{t} {n}" for t, n in tent_empty.tier.value_counts().sort_index().items())
+                  + f"; {pct(abstain)}% of them are the model opening <answer> and closing it at once (an abstention, "
+                  "not a parsing failure).", ""]
+
+    # sub-queries
+    subq = p1[p1.kind == "subquery"]
+    if not subq.empty:
+        restates = subq.groupby("tier").apply(
+            lambda x: (x.pred.map(metrics.normalize_answer) == x.qid.map(q["question"]).map(metrics.normalize_answer)).mean())
+        lines += ["## Sub-queries", "",
+                  "Share of sub-queries that only repeat the question (equal after SQuAD normalisation): "
+                  + ", ".join(f"{t} {pct(v)}%" for t, v in restates.items()) + ".", ""]
+        for t in TIERS:
+            ex = subq[(subq.tier == t) & (subq.dataset == "hotpotqa")].head(5)
+            if ex.empty:
+                continue
+            lines += [f"Tier {t}, first five HotpotQA questions:", ""]
+            lines += [f"- {q.at[r.qid, 'question']} → `{r.pred}`" for r in ex.itertuples()]
+            lines.append("")
 
     report = repo_path(cfg.paths.reports) / "STAGE_3_REPORT.md"
     report.write_text("\n".join(lines), encoding="utf-8")
