@@ -1,0 +1,5 @@
+# answer_nodocs v1: the closed-book form of answer.txt (no passages), for Stage 4's no-retrieval configuration.
+Answer the question. Reply with only the short answer (a name, date, number or short phrase), with no explanation.
+
+Question: {question}
+Answer:

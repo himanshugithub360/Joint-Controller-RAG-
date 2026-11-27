@@ -1,0 +1,11 @@
+# tentative v1: the answer the model would give with the evidence so far (a self-answer).
+# Adapted from AutoSearch (bofusun/AutoSearch @ 75ce1c5aba097ded06318a2b1347f02175452eec,
+# scripts/data_process/qa_search_train_merge.py, make_prefix, template "base"). AutoSearch's
+# intermediate answers come from that one prompt: the policy writes <answer> ... </answer> after
+# any search step. Its answer clause and <information> wrapper are kept word for word; its
+# search instructions are dropped, since here the controller, not the LLM, decides whether to search.
+Answer the given question using the information below. You can directly provide the answer inside <answer> and </answer>, without detailed illustrations. For example, <answer> Beijing </answer>.
+
+<information>
+{passages}</information>
+The Question you need to answer: {question}

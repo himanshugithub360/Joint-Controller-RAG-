@@ -43,4 +43,21 @@ flashrag:
   # train sets the training pool, validation and live fine-tuning sets are drawn from
   train_sources: [nq, hotpotqa]
 
-tokenizer: Qwen/Qwen2.5-7B-Instruct   # used only to count question tokens
+tokenizer: Qwen/Qwen2.5-7B-Instruct   # counts question tokens; renders Stage 3+ chat prompts (same template for all Qwen2.5 sizes)
+
+# Stage 3: prompts, decoding and the Kaggle round trip. Decoding is greedy for every call.
+llm:
+  prompt_version: v1          # configs/prompts/<version>/*.txt
+  seed: 0
+  gpu_memory_utilization: 0.90
+  batch_size: 256             # prompts per vLLM generate() call (timing is logged per batch)
+  calls:                      # call kind -> prompt file, decoding limits
+    answer:    {prompt: answer.txt,        max_tokens: 32, stop: ["\n"]}
+    closed:    {prompt: answer_nodocs.txt, max_tokens: 32, stop: ["\n"]}
+    tentative: {prompt: tentative.txt,     max_tokens: 32, stop: ["</answer>"]}
+    subquery:  {prompt: subquery.txt,      max_tokens: 48, stop: ["\n"]}
+  stage3:
+    k: 3                      # passages in each Stage 3 prompt
+    determinism_n: 200        # answer prompts generated twice per tier
+    jobs: kaggle/inputs/stage3_jobs.jsonl.gz   # committed: Kaggle reads it from the repo
+    outputs: ${paths.data}/stage3              # Kaggle output files go here (S.jsonl, ...)

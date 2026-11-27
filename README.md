@@ -53,9 +53,9 @@ on, add a `GITHUB_TOKEN` secret if this repo is private, then run all cells.
 ## Layout
 
 ```
-configs/              Hydra config + scale profiles
+configs/              Hydra config, scale profiles, versioned prompt templates (configs/prompts/v1)
 envs/                 local conda env, Kaggle pip requirements
-src/budgetrag/        thesis code (data now; retrieval, llm, cost, cache, env, features, controller next)
+src/budgetrag/        thesis code (data, retrieval, llm, eval now; cost, cache, env, features, controller next)
 scripts/sNN_*.py      one entry script per stage
 kaggle/               notebooks and scripts that run on Kaggle GPUs
 tests/                pytest unit tests
@@ -71,7 +71,7 @@ third_party/          reused repos at pinned commits (fetched, not committed; se
 | 0 | Environments, pinned third-party code, smoke tests | Done: local and Kaggle pass, all three tiers answer (`reports/STAGE_0_REPORT.md`) |
 | 1 | Datasets and frozen splits | Done, lite profile: 9,125 questions (`reports/STAGE_1_REPORT.md`) |
 | 2 | Retrieval (BM25, E5) and retrieval cache | E5 done: top-10 for all 9,125 questions (`reports/STAGE_2_REPORT.md`); BM25 pending (only for E6) |
-| 3 | Model serving on Kaggle, prompts, EM/F1 | |
+| 3 | Model serving on Kaggle, prompts, EM/F1 | Code and prompts ready, 29 new tests pass (58 in all); Kaggle run pending (`kaggle/stage3.ipynb`, then `scripts/s03_score.py`) |
 | 4 | Pilot and tier-gap gate | |
 | 5 | Cost model and budgets | |
 | 6 | Outcome cache | |

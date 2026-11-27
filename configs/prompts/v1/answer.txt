@@ -1,0 +1,8 @@
+# answer v1: question + numbered passages -> short answer only.
+# Passages use Search-R1's format: "Doc i(Title: <title>) <text>" (search_r1/llm_agent/generation.py, _passages2string).
+# Lines starting with "#" at the top of this file are comments and are not sent to the model.
+Answer the question using the documents below. Reply with only the short answer (a name, date, number or short phrase), with no explanation.
+
+{passages}
+Question: {question}
+Answer:

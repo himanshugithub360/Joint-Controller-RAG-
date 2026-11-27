@@ -1,0 +1,8 @@
+# subquery v1: question + evidence so far -> one search query for the missing fact.
+# Wording follows IRCoT's idea (Trivedi et al., 2023): the next retrieval targets the next fact the
+# reasoning needs, written as a query rather than a chain-of-thought sentence.
+You are searching Wikipedia to answer a question. Given the question and the documents found so far, write one search query for the single most important fact that is still missing. Reply with only the search query.
+
+{passages}
+Question: {question}
+Search query:
