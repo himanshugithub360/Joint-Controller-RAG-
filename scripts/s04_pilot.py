@@ -118,7 +118,7 @@ def jobs_file(cfg, r: int) -> Path:
 
 
 def make_job(tok, templates, calls, row, node, kind, tier, store) -> dict:
-    ids = list(node["doc_ids"])
+    ids = [int(i) for i in node["doc_ids"]]
     if kind == "answer" and not ids:
         tmpl, call = templates["closed"], calls["closed"]          # root: closed-book answer prompt
     else:
@@ -247,7 +247,7 @@ def grow(cfg, r: int, tr, store) -> tuple[pd.DataFrame, list[dict], dict]:
         ids = [d for d, _ in h]
         for k in k_choices(cfg, n["group"]):
             c = {"qid": n["qid"], "group": n["group"], "path": tree.child_path(n["path"], k), "depth": r + 1,
-                 "doc_ids": tree.extend(list(n["doc_ids"]), ids, k), "subquery": None, "subquery_raw": None,
+                 "doc_ids": tree.extend([int(i) for i in n["doc_ids"]], [int(i) for i in ids], k), "subquery": None, "subquery_raw": None,
                  "search_query": n["search_query"]}
             new_nodes.append(c)
     store.ensure(d for c in new_nodes for d in c["doc_ids"])
@@ -501,6 +501,7 @@ def report(cfg) -> None:
                   "(those search the question instead).", ""]
 
     rep = repo_path(cfg.paths.reports) / "STAGE_4_REPORT.md"
+    rep.parent.mkdir(parents=True, exist_ok=True)
     rep.write_text("\n".join(lines), encoding="utf-8")
     (out_dir(cfg) / "decision.json").write_text(json.dumps(
         {"final_tiers": final, "gate_pass": bool(gate_ok), "retrieval_pass": bool(retrieval_ok),
