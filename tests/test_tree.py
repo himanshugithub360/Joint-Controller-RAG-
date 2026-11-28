@@ -45,7 +45,7 @@ def test_round1_jobs():
     with gzip.open(R1, "rt", encoding="utf-8") as f:
         jobs = [json.loads(line) for line in f]
     meta = json.loads(R1.with_name("stage4_r1.meta.json").read_text(encoding="utf-8"))
-    assert meta["run_tiers"] == [str(CFG.models.helper)]
+    assert meta["run_tiers"] == [meta["helper"]] and meta["models"][meta["helper"]] == "Qwen/Qwen2.5-1.5B-Instruct"
     assert len({j["job_id"] for j in jobs}) == len(jobs)
     val = [j for j in jobs if j["group"] == "val"]
     pil = [j for j in jobs if j["group"] == "pilot"]

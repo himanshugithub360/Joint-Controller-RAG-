@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -61,7 +62,15 @@ def tiers(cfg) -> dict:
         tp[label] = tp[t]
     order = [cfg.models.fallback_label[t] for t in st.try_fallback if t == "S"] + list(cfg.models.tiers) + \
             [cfg.models.fallback_label[t] for t in st.try_fallback if t == "L"]
-    return {"models": models, "tp": tp, "order": order, "helper": str(cfg.models.helper)}
+    helper = str(cfg.models.helper)
+    if helper not in models:                      # helper given as a model name (after the gate)
+        label = next((t for t, m in models.items() if m == helper), "H")
+        models.setdefault(label, helper)
+        tp.setdefault(label, 1)
+        if label not in order:
+            order.insert(0, label)
+        helper = label
+    return {"models": models, "tp": tp, "order": order, "helper": helper}
 
 
 def select_questions(cfg) -> pd.DataFrame:
@@ -289,7 +298,10 @@ def pct(x) -> str:
 
 def report(cfg) -> None:
     st = cfg.llm.stage4
-    tr = tiers(cfg)
+    # the models this pilot actually ran (from the round 3 job file), not today's config: the
+    # gate's outcome is written back into configs/profile/*.yaml afterwards
+    m3 = json.loads(jobs_file(cfg, 3).with_name("stage4_r3.meta.json").read_text(encoding="utf-8"))
+    tr = {"models": m3["models"], "tp": m3["tensor_parallel"], "order": m3["run_tiers"], "helper": m3["helper"]}
     q = pd.read_parquet(repo_path(cfg.paths.questions)).set_index("qid")
     nodes = pd.read_parquet(nodes_path(cfg))
 
@@ -467,16 +479,39 @@ def report(cfg) -> None:
     loads = sum(m.get("load_s", 0) for (r, t), m in metas.items())
     gpu_h, wall_h = gpu_q * n_tot / 3600, wall_q * n_tot / 3600
     setup_h = 3 * 0.25 + loads / 3600                     # 3 rounds: ~15 min venv + downloads each, plus model loads
-    total_h = wall_h + setup_h
+
+    # Session time under kaggle/run_stage4.sh's schedule (the one round 3 ran with): per round,
+    # one-GPU tiers split into two queues by model size, one per T4; two-GPU tiers afterwards.
+    final_set = set(final_labels.values())
+    size = lambda t: float(re.search(r"([\d.]+)B", tr["models"][t]).group(1))
+    sched_q = 0.0
+    for r in sorted(pq["round"].unique()):
+        d = pq[pq["round"] == r]
+        keep = (d.tier.isin(final_set) & (d.kind == "answer")) | ((d.tier == tr["helper"]) & (d.kind != "answer"))
+        wall_t = (d[keep].groupby("tier").gpu_s.sum() / pd.Series(tr["tp"]).reindex(d[keep].tier.unique())) / nq
+        one = sorted([t for t in wall_t.index if tr["tp"][t] == 1], key=size, reverse=True)
+        qs, w = [0.0, 0.0], [0.0, 0.0]
+        for t in one:
+            i = w.index(min(w)); w[i] += size(t); qs[i] += wall_t[t]
+        sched_q += max(qs) + sum(wall_t[t] for t in wall_t.index if tr["tp"][t] > 1)
+    sched_h = sched_q * n_tot / 3600
+    total_h = sched_h + setup_h
     fits = total_h <= float(st.kaggle_quota_h)
     log = out_dir(cfg) / "retrieval_log.json"
     rlog = json.loads(log.read_text()) if log.exists() else []
-    lines += ["", f"Final tiers plus helper: {gpu_q:.2f} GPU-s and {wall_q:.2f} wall-s of generation per question.", "",
+    lines += ["", f"Final tiers plus helper: {gpu_q:.2f} GPU-s of generation per question; {wall_q:.2f} s of session "
+              f"time if every model ran alone, {sched_q:.2f} s with the two-GPU schedule of `kaggle/run_stage4.sh` "
+              "(one-GPU models side by side, one per T4).", "",
               f"Projected outcome cache ({cfg.profile_name}: {n_cache['train_pool']:,} train + {n_cache['val']:,} "
-              f"validation + {n_cache['test']:,} test = {n_tot:,} questions): **{gpu_h:.1f} GPU-hours** "
-              f"({wall_h:.1f} h of Kaggle session time for generation, plus about {setup_h:.1f} h for three rounds "
-              f"of setup and model loading = **{total_h:.1f} h**) against a quota of {st.kaggle_quota_h} h per week "
-              f"-> {'fits' if fits else 'does NOT fit'} in one week.", ""]
+              f"validation + {n_cache['test']:,} test = {n_tot:,} questions): **{gpu_h:.1f} GPU-hours**. "
+              f"Kaggle session time: {sched_h:.1f} h of generation with the two-GPU schedule ({wall_h:.1f} h one model "
+              f"at a time), plus about {setup_h:.1f} h for three rounds of setup and model loading = "
+              f"**{total_h:.1f} h** against a quota of {st.kaggle_quota_h} h per week "
+              f"-> {'fits' if fits else 'does NOT fit'} in one week's quota.", "",
+              "The margin is thin: the setup allowance is a rough 15 min per round, and the one-week bar is this "
+              "report's own reading of \"fits the available GPU time\" (the cache may also be built over two "
+              "weeks). Rounds 1 and 2 run only the helper and leave one T4 idle; splitting the helper's jobs over "
+              "both GPUs would cut session time further if needed.", ""]
     if rlog:
         lines += ["Workstation retrieval between rounds: " + "; ".join(
             f"after round {x['round']}: {x['new']} new queries in {x['seconds'] / 60:.1f} min" for x in rlog) +

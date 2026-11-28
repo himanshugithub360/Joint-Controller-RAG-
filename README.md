@@ -25,7 +25,7 @@ original plan for a later run on bigger GPUs.
 
 | | lite | full |
 |---|---|---|
-| Model tiers S / M / L | Qwen2.5 1.5B / 3B / 7B Instruct (float16) | Qwen2.5 3B / 7B / 32B Instruct (bfloat16) |
+| Model tiers S / M / L | Qwen2.5 0.5B / 3B / 7B Instruct (float16); helper 1.5B (S was 1.5B until the Stage 4 gate) | Qwen2.5 3B / 7B / 32B Instruct (bfloat16) |
 | Training pool | 5,000 (2,500 NQ + 2,500 HotpotQA) | 20,000 |
 | Validation / live fine-tuning | 500 / 500 | 1,000 / 2,000 |
 | Test | 500 per dataset (Bamboogle 125) ≈ 3,125 | all test splits ≈ 51,700 |
@@ -55,7 +55,7 @@ on, add a `GITHUB_TOKEN` secret if this repo is private, then run all cells.
 ```
 configs/              Hydra config, scale profiles, versioned prompt templates (configs/prompts/v1)
 envs/                 local conda env, Kaggle pip requirements
-src/budgetrag/        thesis code (data, retrieval, llm, eval now; cost, cache, env, features, controller next)
+src/budgetrag/        thesis code (data, retrieval, llm, eval, cache tree now; cost, env, features, controller next)
 scripts/sNN_*.py      one entry script per stage
 kaggle/               notebooks and scripts that run on Kaggle GPUs
 tests/                pytest unit tests
@@ -72,7 +72,7 @@ third_party/          reused repos at pinned commits (fetched, not committed; se
 | 1 | Datasets and frozen splits | Done, lite profile: 9,125 questions (`reports/STAGE_1_REPORT.md`) |
 | 2 | Retrieval (BM25, E5) and retrieval cache | E5 done: top-10 for all 9,125 questions (`reports/STAGE_2_REPORT.md`); BM25 pending (only for E6) |
 | 3 | Model serving on Kaggle, prompts, EM/F1 | Done: all three tiers answer the 500 validation questions; top-3 answer F1 1.5B 44.8 / 3B 47.0 / 7B 50.6; 99.5–100% deterministic (`reports/STAGE_3_REPORT.md`) |
-| 4 | Pilot and tier-gap gate | |
+| 4 | Pilot and tier-gap gate | Done: gate fails for 1.5B/3B/7B (M−S = +2.1), passes with the planned fallback S = 0.5B (+11.4, +3.5); retrieval helps on HotpotQA; K stays {3, 5}; cache projected at 48 GPU-h ≈ 29 h of Kaggle time (`reports/STAGE_4_REPORT.md`) |
 | 5 | Cost model and budgets | |
 | 6 | Outcome cache | |
 | 7 | Simulator, oracle, faithfulness gate | |
