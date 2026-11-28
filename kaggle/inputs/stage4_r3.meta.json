@@ -1,0 +1,39 @@
+{
+  "stage": 4,
+  "round": 3,
+  "profile": "lite",
+  "prompt_version": "v1",
+  "git_hash": "c01b290298d4cdb11422bbb7c051ad40d1e87efd",
+  "tokenizer": "Qwen/Qwen2.5-7B-Instruct",
+  "n_jobs": 42500,
+  "jobs_per_tier": {
+    "S": 14000,
+    "XS": 9500,
+    "M": 9500,
+    "L": 9500
+  },
+  "run_tiers": [
+    "XS",
+    "S",
+    "M",
+    "L"
+  ],
+  "models": {
+    "S": "Qwen/Qwen2.5-1.5B-Instruct",
+    "M": "Qwen/Qwen2.5-3B-Instruct",
+    "L": "Qwen/Qwen2.5-7B-Instruct",
+    "XS": "Qwen/Qwen2.5-0.5B-Instruct"
+  },
+  "tensor_parallel": {
+    "S": 1,
+    "M": 1,
+    "L": 2,
+    "XS": 1
+  },
+  "helper": "S",
+  "dtype": "float16",
+  "max_model_len": 4096,
+  "seed": 0,
+  "gpu_memory_utilization": 0.9,
+  "batch_size": 256
+}
